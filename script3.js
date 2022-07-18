@@ -35,6 +35,8 @@ let isActive = false;
 let isComplete = false;
 let isSelectAll = false;
 
+let finishText = `<strike>This task is finished</strike>`;
+
 function insertHTML(task) {
     const html = `
         <div class="task-with-hr" id="task-and-hr-${taskId}">
@@ -42,6 +44,7 @@ function insertHTML(task) {
                 <div class="task-info flex" id="task${taskId}-info-id" onclick="thatCheckFun()">
                     <input type="checkbox" name="checkbox" id="checked-${taskId}" class="cbox">
                     <p class="task-name-para${taskId}" id="para-id-${taskId}">${task}</p>
+                    <p class="finished-para${taskId} hidden" id="finish-id-${taskId}"><strike>This task is finished</strike></p>
                     <input type="text" name="task-edit" id="editable-task${taskId}" class="hidden">
                 </div>
                 <div class="task-update flex">
@@ -59,7 +62,6 @@ function insertHTML(task) {
 }
 
 
-
 // ------------------------------------------------------------------------------------------
 // --------------- ADD TASK ---------------
 // ------------------------------------------------------------------------------------------
@@ -68,7 +70,7 @@ function addFunction(e) {
         if (e.key === 'Enter' && isAdd && !isSearch) {
             e.preventDefault();
             displayTaskContainer.classList.remove('hidden');
-            if (mainInputTask.value != 0) {
+            if (mainInputTask.value != '' && mainInputTask.value != 0 || mainInputTask.value == '0') {
                 taskArr.push(mainInputTask.value);
                 insertHTML(mainInputTask.value);
             }
@@ -94,6 +96,40 @@ displayTaskContainer.innerHTML = '';
 all();
 mainInputTask.addEventListener('keydown', addFunction);
 mainInputTask.removeEventListener('input', searchFunction);
+});
+
+
+// ------------------------------------------------------------------------------------------
+// --------------- SEARCH TASK ---------------
+// ------------------------------------------------------------------------------------------
+let search_tearm;
+function searchFunction(e) {
+    if(isSearch && !isAdd) {
+        if (taskArr != 0) {
+                displayTaskContainer.innerHTML = '';
+                search_tearm = e.target.value;
+                const searchedTaskArr = taskArr.filter(item => item.includes(search_tearm));
+                for(let i of searchedTaskArr) {
+                    insertHTML(i);
+                    if(completedArr.includes(i)) {
+                        document.querySelector(`input[name="checkbox"]`).checked = true;
+                    }
+                }
+        } else {
+            alert("There's no Task!! Please add some");
+        }
+    }
+}
+searchBtn.addEventListener('click', function() {
+    addBtn.classList.remove('focus');
+    addBtn.style.backgroundColor = '#016fff';
+    searchBtn.classList.add('focus');
+    searchBtn.style.backgroundColor = 'transparent';
+    isAdd = false;
+    isSearch = true;
+    mainInputTask.focus();
+    mainInputTask.addEventListener("input", searchFunction);
+    mainInputTask.removeEventListener('keydown', addFunction);
 });
 
 
@@ -132,54 +168,37 @@ function toggleEditableInput(a) {
 
 
 // ------------------------------------------------------------------------------------------
-// --------------- EDIT TASK ---------------
+// --------------- DELETE TASK ---------------
 // ------------------------------------------------------------------------------------------
 function deleteTask(a) {
+    const areYouSureToDlt = confirm("Are you sure to delete this task ?");
+    if(areYouSureToDlt) {
+        const deleteBTN = document.querySelector(`#delete-${a}`);
+        const wholeTaskWithHr = document.querySelector(`#task-and-hr-${a}`);
+        const taskName = document.querySelector(`.task-name-para${a}`);
+    
+        const index = taskArr.indexOf(taskName.textContent);
+        console.log(index);
+        taskArr.splice(index, 1);
+        console.log({taskArr});
+        completedArr.splice(index, 1);
+        console.log({completedArr});
+    
+        wholeTaskWithHr.parentNode.removeChild(wholeTaskWithHr);
+    }
+}
+function dltAll(a) {
     const deleteBTN = document.querySelector(`#delete-${a}`);
     const wholeTaskWithHr = document.querySelector(`#task-and-hr-${a}`);
     const taskName = document.querySelector(`.task-name-para${a}`);
-
+    
     const index = taskArr.indexOf(taskName.textContent);
     console.log(index);
     taskArr.splice(index, 1);
     completedArr.splice(index, 1);
-
+    
     wholeTaskWithHr.parentNode.removeChild(wholeTaskWithHr);
 }
-
-
-// ------------------------------------------------------------------------------------------
-// --------------- SEARCH TASK ---------------
-// ------------------------------------------------------------------------------------------
-let search_tearm;
-function searchFunction(e) {
-    if(isSearch && !isAdd) {
-        if (taskArr != 0) {
-                displayTaskContainer.innerHTML = '';
-                search_tearm = e.target.value;
-                const searchedTaskArr = taskArr.filter(item => item.includes(search_tearm));
-                for(let i of searchedTaskArr) {
-                    insertHTML(i);
-                    if(completedArr.includes(i)) {
-                        document.querySelector(`input[name="checkbox"]`).checked = true;
-                    }
-                }
-        } else {
-            console.log("There's no Task!! Please add some");
-        }
-    }
-}
-searchBtn.addEventListener('click', function() {
-    addBtn.classList.remove('focus');
-    addBtn.style.backgroundColor = '#016fff';
-    searchBtn.classList.add('focus');
-    searchBtn.style.backgroundColor = 'transparent';
-    isAdd = false;
-    isSearch = true;
-    mainInputTask.focus();
-    mainInputTask.addEventListener("input", searchFunction);
-    mainInputTask.removeEventListener('keydown', addFunction);
-});
 
 
 // ------------------------------------------------------------------------------------------
@@ -200,6 +219,8 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -215,6 +236,8 @@ taskSort.addEventListener('input', function() {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
+                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
@@ -224,6 +247,8 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -236,6 +261,8 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -252,15 +279,20 @@ taskSort.addEventListener('input', function() {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
+                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
-            sortedArr = taskArr.sort((a,b) => b-a);
-            for(let i of sortedArr) {
+            sortedArr = taskArr.sort();
+            console.log({sortedArr});
+            for(let i of sortedArr.reverse()) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -277,6 +309,8 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -285,6 +319,8 @@ taskSort.addEventListener('input', function() {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
+                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
@@ -301,6 +337,8 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -316,6 +354,8 @@ taskSort.addEventListener('input', function() {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
+                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
@@ -325,12 +365,13 @@ taskSort.addEventListener('input', function() {
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
     }
 });
-
 
 
 // ------------------------------------------------------------------------------------------
@@ -344,6 +385,8 @@ function completed() {
         insertHTML(a);
         const d = document.querySelector(`#checked-${taskId}`);
         d.checked = true;
+        document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+        document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
         taskId++;
     }
     thatCheckFun();
@@ -400,6 +443,8 @@ function all() {
         if(completedArr.includes(a)) {
             const d = document.querySelector(`#checked-${taskId}`);
             d.checked = true;
+            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
         }
         taskId++;
     }
@@ -438,24 +483,31 @@ function thatCheckFun() {
                 console.log(ele);
                 completedArr.push(value);
                 activeArr = activeArr.filter(i => i!=value);
-                console.log({completedArr});
                 activeArr = taskArr.filter(i => !completedArr.includes(i));
                 displayTaskContainer.innerHTML = '';
                 if(isActive) {
+                    console.log({isActive});
                     for(let i of activeArr) {
                         insertHTML(i);
                         taskId++;
                     }
                 }
                 else {
+                    console.log({isAll});
                     for(let i of taskArr) {
                         insertHTML(i);
+                        console.log({i});
                         if(completedArr.includes(i)) {
                             const d = document.querySelector(`#checked-${taskId}`);
                             d.checked = true;
+                            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                            // const fd = document.querySelector(`#para-id-${index}`);
+                            // fd.textContent = finishText;
                         }
                         taskId++;
                     }
+                    console.log({value});
                 }
             }
             else {
@@ -468,15 +520,24 @@ function thatCheckFun() {
                         insertHTML(a);
                         const d = document.querySelector(`#checked-${taskId}`);
                         d.checked = true;
+                        document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                        document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                        // const fd = document.querySelector(`#para-id-${index}`);
+                        // fd.textContent = finishText;
                         taskId++;
                     }
                 }
                 else {
+                    console.log({isAll});
                     for(let a of taskArr) {
                         insertHTML(a);
                         if(completedArr.includes(a)) {
                             const d = document.querySelector(`#checked-${taskId}`);
                             d.checked = true;
+                            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                            // const fd = document.querySelector(`#para-id-${index}`);
+                            // fd.textContent = finishText;
                         }
                         taskId++;
                     }
@@ -486,15 +547,15 @@ function thatCheckFun() {
     }
 }
 
+
 // ------------------------------------------------------------------------------------------
-// --------------- ACTION ON TASK ---------------
+// --------------- ACTIONS ON TASK ---------------
 // ------------------------------------------------------------------------------------------
 taskAction.addEventListener('click', function() {
     // displayTaskContainer.innerHTML = '';
     const selectedAction = taskAction.options[taskAction.selectedIndex].value;
     console.log(selectedAction);
     const d = document.querySelectorAll(`input[name="checkbox"]`);
-    console.log({d});
 
     if(selectedAction === 'selectall') {
         isSelectAll = true;
@@ -505,6 +566,9 @@ taskAction.addEventListener('click', function() {
             let value = document.querySelector(`#para-id-${index}`).textContent;
 
             i.checked = true;
+
+            document.querySelector(`#para-id-${index}`).classList.add("hidden");
+            document.querySelector(`#finish-id-${index}`).classList.remove("hidden");
             
             activeArr = taskArr.filter(i => i != value);
             completedArr = taskArr.filter(i => i = value);
@@ -519,6 +583,9 @@ taskAction.addEventListener('click', function() {
 
             i.checked = false;
 
+            document.querySelector(`#para-id-${index}`).classList.remove("hidden");
+            document.querySelector(`#finish-id-${index}`).classList.add("hidden");
+
             activeArr = taskArr;
             console.log({activeArr});
             completedArr = [];
@@ -526,13 +593,17 @@ taskAction.addEventListener('click', function() {
         }
     }
     else if (selectedAction === 'dlt') {
-        for(let i of d) {
-            let index = i.id.slice(-1);
-            let an = document.querySelector(`#task-and-hr-${index}`);
-            let value = document.querySelector(`#para-id-${index}`).textContent;
-
-            if(i.checked) {
-                deleteTask(index);
+        // if()
+        const dltAllSure = confirm("Do you really want delete all the task ?");
+        if(dltAllSure) {
+            for(let i of d) {
+                let index = i.id.slice(-1);
+                let an = document.querySelector(`#task-and-hr-${index}`);
+                let value = document.querySelector(`#para-id-${index}`).textContent;
+    
+                if(i.checked) {
+                    dltAll(index);
+                }
             }
         }
     }

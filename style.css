@@ -1,0 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Quicksand", sans-serif;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.focus {
+  background-color: transparent;
+  box-shadow: 1px 1px 10px 2px #66a8ff;
+}
+
+body {
+  background-color: rgba(114, 112, 253, 0.123);
+  margin: 0 auto;
+  width: 70%;
+}
+
+h1 {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.input-text-field {
+  margin: 1em 0;
+}
+.input-text-field input {
+  min-width: 100%;
+  font-size: large;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.384);
+}
+.input-text-field input:focus {
+  outline: 1px solid #38687f;
+  box-shadow: 1px 1px 10px 1px rgba(102, 168, 255, 0.5882352941);
+}
+
+.single-task {
+  list-style-type: none;
+  padding-right: 1em;
+  justify-content: space-between;
+  margin: 1em 0 1em 1em;
+  padding-right: 3em;
+}
+
+.task-info {
+  gap: 0.5em;
+}
+.task-info button {
+  background-color: transparent;
+  border: none;
+}
+
+.task-update {
+  width: 100px;
+}
+.task-update button {
+  background-color: transparent;
+  border: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.hr-style {
+  border: none;
+  border-bottom: 0.05em solid rgba(128, 128, 128, 0.253);
+  color: rgb(153, 153, 153);
+}
+
+.display-allTask {
+  margin-bottom: 1em;
+}
+
+.button-color {
+  background-color: #016fff;
+}
+
+.all-buttons .add-and-search {
+  width: 25%;
+  padding: 0.3em 0;
+  border-right: 1px solid #38687f;
+}
+.all-buttons .add-and-search button {
+  border: 1px solid;
+  border-color: #38687f;
+  padding: 0.2em 0.8em;
+}
+.all-buttons .add-and-search button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+.all-buttons .add-and-search button:last-child {
+  border-radius: 0 5px 5px 0;
+}
+
+.task-operation-button {
+  width: 70%;
+}
+.task-operation-button select {
+  border: 1px solid rgba(0, 0, 0, 0.295);
+  padding: 0.3em 0.5em;
+  width: 130px;
+}
+.task-operation-button .task-category button {
+  border: 1px solid #38687f;
+  border-right: none;
+  padding: 0.3em 0.5em;
+}
+.task-operation-button .task-category button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+.task-operation-button .task-category button:last-child {
+  border-right: 1px solid #38687f;
+  border-radius: 0 5px 5px 0;
+}/*# sourceMappingURL=style.css.map */

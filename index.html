@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO App</title>
+    <link rel="icon" type="image/x-icon" href="smiling-face-with-sunglasses_1f60e.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/a19b7777ea.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    <div class="containar">
+        <h1 class="title">TODO list</h1>
+        <div class="input-text-field">
+            <input type="text" name="task" id="task" class="enter-task hidden">
+        </div>
+        <div class="display-allTask">
+            <ul class="all-task-ul">
+                <!-- <li class="single-task-item">
+                    <span class="single-task-title"></span>
+                    <input type="text">
+                    <button>A</button>
+                    <button>B</button>
+                </li> -->
+            </ul>
+            <!-- <div class="task-with-hr">
+                <div class="single-task flex">
+                    <div class="task-info flex">
+                        <input type="checkbox" name="checkbox" id="checked-task">
+                        <p class="task-name-para"></p>
+                        <input type="text" name="task-edit" id="edit-task" class="hidden">
+                    </div>
+                    <div class="task-update flex">
+                        <button><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button><i class="fa-solid fa-delete-left"></i></button>
+                    </div>
+                </div>
+                <hr>
+            </div> -->
+        </div>
+        <div class="all-buttons flex">
+            <div class="add-and-search flex">
+                <button class="add-task button-color" ><i class="fa-solid fa-plus"></i></button>
+                <button class="search-task button-color"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="task-operation-button flex">
+                <select name="action" id="action" class="task-action">
+                    <option value="def" selected>Action</option>
+                    <option value="dlt">Delete All Selected</option>
+                    <option value="selectall">Select All</option>
+                    <option value="unselectall">Un Select All</option>
+                </select>
+
+                <select name="action" id="action" class="task-sort">
+                    <option value="def" selected>Sort</option>
+                    <option value="az">A-Z</option>
+                    <option value="za">Z-A</option>
+                    <option value="new">Newest</option>
+                    <option value="old">Oldest</option>
+                </select>
+
+                <div class="task-category flex">
+                    <button class="button-color" id="allTaskBTN" >All</button>
+                    <button class="button-color" id="activeTaskBTN">Active</button>
+                    <button class="button-color" id="completedTaskBTN">Completed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script3.js"></script>
+</body>
+</html>

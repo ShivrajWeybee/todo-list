@@ -43,12 +43,12 @@ function insertHTML(task) {
             <div class="single-task flex">
                 <div class="task-info flex" id="task${taskId}-info-id" onclick="thatCheckFun()">
                     <input type="checkbox" name="checkbox" id="checked-${taskId}" class="cbox">
-                    <p class="task-name-para${taskId}" id="para-id-${taskId}">${task}</p>
-                    <p class="finished-para${taskId} hidden" id="finish-id-${taskId}"><strike>This task is finished</strike></p>
+                    <p class="task-name-para${taskId} task-para" id="para-id-${taskId}">${task}</p>
+                    <p class="finished-para${taskId} hidden" id="finish-id-${taskId}"><strike>${task}</strike></p>
                     <input type="text" name="task-edit" id="editable-task${taskId}" class="hidden">
                 </div>
                 <div class="task-update flex">
-                    <button id="close-${taskId}" class="hidden" onclick="toggleEditableInput(${taskId})"><i class="fa-solid fa-square-xmark"></i></button>
+                    <button id="close-${taskId}" class="hidden" onclick="closeEditableInput(${taskId})"><i class="fa-solid fa-square-xmark"></i></button>
 
                     <button id="edit-${taskId}" onclick="toggleEditableInput(${taskId})"><i class="fa-solid fa-pen-to-square"></i></button>
 
@@ -71,7 +71,7 @@ function addFunction(e) {
             e.preventDefault();
             displayTaskContainer.classList.remove('hidden');
             if (mainInputTask.value != '' && mainInputTask.value != 0 || mainInputTask.value == '0') {
-                taskArr.push(mainInputTask.value);
+                taskArr.push(Number(mainInputTask.value) ? Number(mainInputTask.value) : mainInputTask.value);
                 insertHTML(mainInputTask.value);
             }
             else{
@@ -108,11 +108,28 @@ function searchFunction(e) {
         if (taskArr != 0) {
                 displayTaskContainer.innerHTML = '';
                 search_tearm = e.target.value;
-                const searchedTaskArr = taskArr.filter(item => item.includes(search_tearm));
-                for(let i of searchedTaskArr) {
-                    insertHTML(i);
-                    if(completedArr.includes(i)) {
+                if(isActive) {
+                    const searchedTaskArr = activeArr.filter(item => item == search_tearm);
+                    for(let i of searchedTaskArr) {
+                        insertHTML(i);
+                    }
+                }
+                else if(isComplete) {
+                    const searchedTaskArr = completedArr.filter(item => item == search_tearm);
+                    for(let i of searchedTaskArr) {
+                        insertHTML(i);
                         document.querySelector(`input[name="checkbox"]`).checked = true;
+                        document.querySelector(`.task-para`).style.textDecoration = "line-through";
+                    }
+                }
+                else {
+                    const searchedTaskArr = taskArr.filter(item => item == search_tearm);
+                    for(let i of searchedTaskArr) {
+                        insertHTML(i);
+                        if(completedArr.includes(i)) {
+                            document.querySelector(`input[name="checkbox"]`).checked = true;
+                            document.querySelector(`.task-para`).style.textDecoration = "line-through";
+                        }
                     }
                 }
         } else {
@@ -137,33 +154,60 @@ searchBtn.addEventListener('click', function() {
 // --------------- EDIT TASK ---------------
 // ------------------------------------------------------------------------------------------
 function toggleEditableInput(a) {
+    const cbBox = document.querySelector(`#checked-${a}`);
     const secInput = document.querySelector(`#editable-task${a}`);
     const taskEditBTN = document.querySelector(`#edit-${a}`);
     const taskCloseBTN = document.querySelector(`#close-${a}`);
     const taskName = document.querySelector(`.task-name-para${a}`);
-
+    // const finishTaskName = document.querySelector(`#finish-id-${taskId}`);
     const idex = taskArr.indexOf(taskName.textContent);
+    const indexOfCompleted = completedArr.indexOf(taskName.textContent);
 
-    secInput.classList.toggle("hidden");
-    taskEditBTN.classList.toggle("hidden");
-    taskName.classList.toggle("hidden");
-    taskCloseBTN.classList.toggle("hidden");
+    secInput.classList.remove("hidden");
+    taskEditBTN.classList.add("hidden");
+    taskName.classList.add("hidden");
+    taskCloseBTN.classList.remove("hidden");
     console.log(taskName.textContent);
+    console.log({completedArr});
 
     secInput.focus();
     secInput.value = taskName.textContent;
 
     secInput.addEventListener('keydown', function(e) {
         if(e.key === 'Enter') {
-            console.log("😀");
-            taskName.classList.toggle("hidden");
             taskName.textContent = secInput.value;
-            secInput.classList.toggle('hidden');
-            taskCloseBTN.classList.toggle("hidden");
-            taskEditBTN.classList.toggle("hidden");
+            taskName.classList.remove("hidden");
+            console.log(taskName.textContent);
+            secInput.classList.add('hidden');
+            taskCloseBTN.classList.add("hidden");
+            taskEditBTN.classList.remove("hidden");
             taskArr[idex] = secInput.value;
+
+            if(cbBox.checked) {
+                console.log(indexOfCompleted);
+                completedArr[indexOfCompleted] = secInput.value;
+            }
         }
     });
+}
+
+function closeEditableInput(a) {
+    const cbBox = document.querySelector(`#checked-${a}`);
+    const secInput = document.querySelector(`#editable-task${a}`);
+    const taskEditBTN = document.querySelector(`#edit-${a}`);
+    const taskCloseBTN = document.querySelector(`#close-${a}`);
+    const taskName = document.querySelector(`.task-name-para${a}`);
+    const idex = taskArr.indexOf(taskName.textContent);
+    const indexOfCompleted = completedArr.indexOf(taskName.textContent);
+
+    taskName.classList.remove("hidden");
+    secInput.classList.add('hidden');
+    taskCloseBTN.classList.add("hidden");
+    taskEditBTN.classList.remove("hidden");
+
+    if(cbBox.checked) {
+        completedArr[indexOfCompleted] = taskName.textContent;
+    }
 }
 
 
@@ -171,9 +215,9 @@ function toggleEditableInput(a) {
 // --------------- DELETE TASK ---------------
 // ------------------------------------------------------------------------------------------
 function deleteTask(a) {
-    const areYouSureToDlt = confirm("Are you sure to delete this task ?");
+    const areYouSureToDlt = confirm("Are you sure to DELETE this task ?");
     if(areYouSureToDlt) {
-        const deleteBTN = document.querySelector(`#delete-${a}`);
+        // const deleteBTN = document.querySelector(`#delete-${a}`);
         const wholeTaskWithHr = document.querySelector(`#task-and-hr-${a}`);
         const taskName = document.querySelector(`.task-name-para${a}`);
     
@@ -210,94 +254,122 @@ taskSort.addEventListener('input', function() {
     selectedSort = taskSort.options[taskSort.selectedIndex].value;
     console.log(selectedSort);
     const completedSet = new Set(completedArr);
+    const sortFunction = (a, b) => {
+        if(typeof a === 'number' && typeof b === 'number') {
+            return a - b;
+        }else if(typeof a === 'number' && typeof b !== 'number') {
+            return -1;
+        }else if(typeof a !== 'number' && typeof b === 'number') {
+            return 1;
+        }else {
+            return a > b ? 1 : -1;
+        }
+    }
     let sortedArr = [];
     if(selectedSort === 'za') {
         if(isAll) {
-            const sortedArr = taskArr.sort();
+            const sortedArr = taskArr.slice().sort(sortFunction);
+            console.log({sortedArr});
+            console.log({taskArr});
             for(let i of sortedArr) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).textContent = `<strike>${i}</strike>`;
                 }
             }
         }
         else if(isActive) {
-            const sortedArr = activeArr.sort();
+            const sortedArr = activeArr.slice().sort(sortFunction);
+            console.log(sortedArr);
+            console.log(activeArr);
             for(let i of sortedArr) {
                 insertHTML(i);
             }
         }
         else if(isComplete) {
-            const sortedArr = completedArr.sort();
+            const sortedArr = completedArr.slice().sort(sortFunction);
+            console.log(sortedArr);
+            console.log(completedArr);
             for(let i of sortedArr) {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
-                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
-            const sortedArr = taskArr.sort();
+            const sortedArr = taskArr.slice().sort(sortFunction);
+            console.log(sortedArr);
             for(let i of sortedArr) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
     }
     else if(selectedSort === 'az') {
         if(isAll) {
-            sortedArr = taskArr.sort((a,b) => b-a);
+            sortedArr = taskArr.slice().sort(sortFunction).reverse();
+            console.log(sortedArr);
+            console.log(taskArr);
             for(let i of sortedArr) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
         else if (isActive) {
-            sortedArr = activeArr.sort((a,b) => b-a);
+            sortedArr = activeArr.slice().sort(sortFunction).reverse();
+            console.log(sortedArr);
+            console.log(activeArr);
             for(let i of sortedArr) {
                 insertHTML(i);
             }
         }
         else if(isComplete){
+            const sortedArr = completedArr.slice().sort(sortFunction).reverse();
+            console.log(sortedArr);
             console.log(completedArr);
-            const sortedArr = completedArr.sort((a,b) => b-a);
             for(let i of sortedArr) {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
-                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
-            sortedArr = taskArr.sort();
-            console.log({sortedArr});
+            sortedArr = taskArr.slice().sort(sortFunction);
+            console.log(sortedArr);
             for(let i of sortedArr.reverse()) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
     }
-    else if(selectedSort === 'old') {
+    else if(selectedSort === 'new') {
         if(isAll) {
             for(let i of taskArr) {
                 insertHTML(i);
@@ -306,12 +378,6 @@ taskSort.addEventListener('input', function() {
         else if (isActive) {
             for(let i of activeArr) {
                 insertHTML(i);
-                if(completedArr.includes(i)) {
-                    const d = document.querySelector(`#checked-${taskId}`);
-                    d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
-                }
             }
         }
         else if(isComplete){
@@ -319,54 +385,65 @@ taskSort.addEventListener('input', function() {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
-                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
             for(let i of taskArr) {
                 insertHTML(i);
+                if(completedArr.includes(i)) {
+                    const d = document.querySelector(`#checked-${taskId}`);
+                    d.checked = true;
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                }
             }
         }
     }
     else {
         if(isAll) {
-            const sortedArr = taskArr.reverse();
+            const sortedArr = taskArr.slice().reverse();
             for(let i of sortedArr) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
         else if (isActive) {
-            const sortedArr = activeArr.reverse();
+            const sortedArr = activeArr.slice().reverse();
             for(let i of sortedArr){
                 insertHTML(i);
             }
         }
         else if(isComplete) {
-            const sortedArr = completedArr.reverse();
+            const sortedArr = completedArr.slice().reverse();
             for(let i of sortedArr) {
                 insertHTML(i);
                 const d = document.querySelector(`input[name="checkbox"]`);
                 d.checked = true;
-                document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
             }
         }
         else {
-            const sortedArr = taskArr.reverse();
+            const sortedArr = taskArr.slice().reverse();
             for(let i of sortedArr) {
                 insertHTML(i);
                 if(completedArr.includes(i)) {
                     const d = document.querySelector(`#checked-${taskId}`);
                     d.checked = true;
-                    document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                    document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                    document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                    // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                    // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                 }
             }
         }
@@ -385,8 +462,7 @@ function completed() {
         insertHTML(a);
         const d = document.querySelector(`#checked-${taskId}`);
         d.checked = true;
-        document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-        document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+        document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
         taskId++;
     }
     thatCheckFun();
@@ -438,13 +514,13 @@ activeTaskBTN.addEventListener('click', function() {
 
 function all() {
     taskId = 0;
+    console.log({taskArr});
     for(let a of taskArr) {
         insertHTML(a);
         if(completedArr.includes(a)) {
             const d = document.querySelector(`#checked-${taskId}`);
             d.checked = true;
-            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+            document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
         }
         taskId++;
     }
@@ -474,16 +550,19 @@ function thatCheckFun() {
     console.log(elementId);
     for(let ele of elementId){
         console.log(ele);
-        let index = ele.id.slice(-1);
-        let an = document.querySelector(`#task-and-hr-${index}`);
-        let value = document.querySelector(`#para-id-${index}`).textContent;
+        let index = ele.id.split('-');
+        let an = document.querySelector(`#task-and-hr-${index[index.length-1]}`);
+        let value = document.querySelector(`#para-id-${index[index.length-1]}`).textContent;
 
         ele.addEventListener('change', function() {
             if(ele.checked) {
                 console.log(ele);
-                completedArr.push(value);
-                activeArr = activeArr.filter(i => i!=value);
+                completedArr.push(Number(value) ? Number(value) : value);
                 activeArr = taskArr.filter(i => !completedArr.includes(i));
+                // activeArr = taskArr.filter(i => i!=value);
+                console.log({completedArr});
+                console.log({activeArr});
+                console.log({taskArr});
                 displayTaskContainer.innerHTML = '';
                 if(isActive) {
                     console.log({isActive});
@@ -493,6 +572,7 @@ function thatCheckFun() {
                     }
                 }
                 else {
+                    displayTaskContainer.innerHTML = '';
                     console.log({isAll});
                     for(let i of taskArr) {
                         insertHTML(i);
@@ -500,8 +580,9 @@ function thatCheckFun() {
                         if(completedArr.includes(i)) {
                             const d = document.querySelector(`#checked-${taskId}`);
                             d.checked = true;
-                            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                            document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                            // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                            // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                             // const fd = document.querySelector(`#para-id-${index}`);
                             // fd.textContent = finishText;
                         }
@@ -520,8 +601,9 @@ function thatCheckFun() {
                         insertHTML(a);
                         const d = document.querySelector(`#checked-${taskId}`);
                         d.checked = true;
-                        document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                        document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
+                        document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
+                        // document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
+                        // document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
                         // const fd = document.querySelector(`#para-id-${index}`);
                         // fd.textContent = finishText;
                         taskId++;
@@ -534,14 +616,11 @@ function thatCheckFun() {
                         if(completedArr.includes(a)) {
                             const d = document.querySelector(`#checked-${taskId}`);
                             d.checked = true;
-                            document.querySelector(`#para-id-${taskId}`).classList.add("hidden");
-                            document.querySelector(`#finish-id-${taskId}`).classList.remove("hidden");
-                            // const fd = document.querySelector(`#para-id-${index}`);
-                            // fd.textContent = finishText;
+                            document.querySelector(`#para-id-${taskId}`).style.textDecoration = "line-through";
                         }
                         taskId++;
                     }
-                } 
+                }
             }
         })
     }
@@ -561,14 +640,15 @@ taskAction.addEventListener('click', function() {
         isSelectAll = true;
         for(let i of d) {
 
-            let index = i.id.slice(-1);
-            let an = document.querySelector(`#task-and-hr-${index}`);
-            let value = document.querySelector(`#para-id-${index}`).textContent;
+            let index = i.id.split('-');
+            let an = document.querySelector(`#task-and-hr-${index[index.length-1]}`);
+            let value = document.querySelector(`#para-id-${index[index.length-1]}`).textContent;
 
             i.checked = true;
 
-            document.querySelector(`#para-id-${index}`).classList.add("hidden");
-            document.querySelector(`#finish-id-${index}`).classList.remove("hidden");
+            document.querySelector(`#para-id-${index[index.length-1]}`).style.textDecoration = "line-through";
+            // document.querySelector(`#para-id-${index}`).classList.add("hidden");
+            // document.querySelector(`#finish-id-${index}`).classList.remove("hidden");
             
             activeArr = taskArr.filter(i => i != value);
             completedArr = taskArr.filter(i => i = value);
@@ -577,14 +657,15 @@ taskAction.addEventListener('click', function() {
     else if (selectedAction === 'unselectall') {
         for(let i of d) {
 
-            let index = i.id.slice(-1);
-            let an = document.querySelector(`#task-and-hr-${index}`);
-            let value = document.querySelector(`#para-id-${index}`).textContent;
+            let index = i.id.split('-');
+            let an = document.querySelector(`#task-and-hr-${index[index.length-1]}`);
+            let value = document.querySelector(`#para-id-${index[index.length-1]}`).textContent;
 
             i.checked = false;
 
-            document.querySelector(`#para-id-${index}`).classList.remove("hidden");
-            document.querySelector(`#finish-id-${index}`).classList.add("hidden");
+            document.querySelector(`#para-id-${index[index.length-1]}`).style.textDecoration = "none";
+            // document.querySelector(`#para-id-${index}`).classList.remove("hidden");
+            // document.querySelector(`#finish-id-${index}`).classList.add("hidden");
 
             activeArr = taskArr;
             console.log({activeArr});
@@ -594,15 +675,15 @@ taskAction.addEventListener('click', function() {
     }
     else if (selectedAction === 'dlt') {
         // if()
-        const dltAllSure = confirm("Do you really want delete all the task ?");
+        const dltAllSure = confirm("Do you really want to DELETE ALL the task ?");
         if(dltAllSure) {
             for(let i of d) {
-                let index = i.id.slice(-1);
-                let an = document.querySelector(`#task-and-hr-${index}`);
-                let value = document.querySelector(`#para-id-${index}`).textContent;
+                let index = i.id.split('-');
+                let an = document.querySelector(`#task-and-hr-${index[index.length-1]}`);
+                let value = document.querySelector(`#para-id-${index[index.length-1]}`).textContent;
     
                 if(i.checked) {
-                    dltAll(index);
+                    dltAll(index[index.length-1]);
                 }
             }
         }
